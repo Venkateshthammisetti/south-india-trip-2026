@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Trip Planner · South India 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f5f2;
+  --surface: #ffffff;
+  --surface2: #f0ede8;
+  --border: #e8e3dc;
+  --navy: #1a2744;
+  --navy2: #253358;
+  --amber: #e8964a;
+  --amber2: #d4823a;
+  --teal: #2a8a7e;
+  --teal2: #1f7066;
+  --rose: #d4506a;
+  --green: #3a9e6e;
+  --purple: #6b5fa6;
+  --text: #1a2744;
+  --text2: #5a6480;
+  --text3: #8a93a8;
+  --shadow: 0 2px 12px rgba(26,39,68,0.08);
+  --shadow2: 0 4px 24px rgba(26,39,68,0.12);
+  --radius: 16px;
+  --radius2: 10px;
+  --bottom-nav: 72px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── TYPOGRAPHY ── */
+.serif { font-family: 'DM Serif Display', serif; }
+
+/* ── PAGES ── */
+.page { display: none; padding-bottom: calc(var(--bottom-nav) + 16px); min-height: 100vh; }
+.page.active { display: block; }
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--surface);
+  padding: 52px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-row { display: flex; align-items: center; justify-content: space-between; }
+.topbar-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--navy); }
+.topbar-sub { font-size: 0.72rem; color: var(--text3); margin-top: 2px; letter-spacing: 0.04em; text-transform: uppercase; }
+.topbar-badge { background: var(--amber); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.03em; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(26,39,68,0.07);
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; padding: 4px 0;
+  color: var(--text3); font-size: 0.62rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  transition: color 0.2s;
+  background: none; border: none; font-family: 'DM Sans', sans-serif;
+}
+.nav-item svg { width: 22px; height: 22px; transition: transform 0.2s; }
+.nav-item.active { color: var(--navy); }
+.nav-item.active svg { transform: scale(1.1); }
+.nav-item.active .nav-dot { background: var(--amber); }
+.nav-dot { width: 4px; height: 4px; border-radius: 50%; background: transparent; margin: 0 auto; transition: background 0.2s; }
+
+/* ── CARDS ── */
+.card { background: var(--surface); border-radius: var(--radius); padding: 18px; margin: 0 16px 12px; box-shadow: var(--shadow); }
+.card-sm { background: var(--surface); border-radius: var(--radius2); padding: 14px; }
+
+/* ── SECTION HEADER ── */
+.section-header { padding: 20px 20px 8px; }
+.section-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--navy); }
+.section-sub { font-size: 0.78rem; color: var(--text3); margin-top: 2px; }
+
+/* ══════════════════════════════════
+   DASHBOARD PAGE
+══════════════════════════════════ */
+.hero-card {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #2a3f6e 100%);
+  border-radius: 0; padding: 20px 20px 28px;
+  position: relative; overflow: hidden;
+}
+.hero-card::before {
+  content: '';
+  position: absolute; top: -60px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(232,150,74,0.2) 0%, transparent 70%);
+}
+.hero-card::after {
+  content: '';
+  position: absolute; bottom: -20px; left: -30px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(42,138,126,0.15) 0%, transparent 70%);
+}
+.trip-name { font-family: 'DM Serif Display', serif; font-size: 1.7rem; color: #fff; line-height: 1.2; }
+.trip-name em { color: var(--amber); font-style: italic; }
+.trip-dates { font-size: 0.78rem; color: rgba(255,255,255,0.65); margin-top: 6px; letter-spacing: 0.04em; }
+.hero-meta { display: flex; gap: 12px; margin-top: 20px; }
+.hero-pill {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 0.75rem; color: rgba(255,255,255,0.9); font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.travelers-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.traveler-chip {
+  background: rgba(255,255,255,0.12); border-radius: 20px;
+  padding: 5px 12px; font-size: 0.73rem; color: rgba(255,255,255,0.9);
+  display: flex; align-items: center; gap: 6px;
+}
+.traveler-avatar {
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+
+.stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-bottom: 4px; }
+.stat-card {
+  background: var(--surface); border-radius: var(--radius2); padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.stat-label { font-size: 0.68rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.stat-value { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--navy); }
+.stat-sub { font-size: 0.68rem; color: var(--text3); margin-top: 2px; }
+
+.next-card { border-left: 4px solid var(--amber); }
+.next-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--amber2); font-weight: 700; margin-bottom: 8px; }
+.next-step { display: flex; align-items: center; gap: 12px; }
+.next-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.next-step-title { font-weight: 600; color: var(--navy); font-size: 0.95rem; }
+.next-step-sub { font-size: 0.78rem; color: var(--text3); margin-top: 2px; }
+
+/* ══════════════════════════════════
+   TIMELINE PAGE
+══════════════════════════════════ */
+.timeline { padding: 0 16px; }
+.timeline-day { margin-bottom: 24px; }
+.day-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--navy); color: #fff;
+  border-radius: 20px; padding: 6px 16px;
+  font-size: 0.78rem; font-weight: 600; margin-bottom: 12px;
+}
+.tl-items { position: relative; padding-left: 28px; }
+.tl-items::before {
+  content: ''; position: absolute; left: 10px; top: 8px; bottom: 8px;
+  width: 2px; background: linear-gradient(180deg, var(--amber) 0%, var(--teal) 50%, var(--rose) 100%);
+  border-radius: 2px;
+}
+.tl-item { position: relative; margin-bottom: 10px; }
+.tl-dot {
+  position: absolute; left: -24px; top: 14px;
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--amber);
+}
+.tl-dot.teal { box-shadow: 0 0 0 2px var(--teal); }
+.tl-dot.rose { box-shadow: 0 0 0 2px var(--rose); }
+.tl-dot.purple { box-shadow: 0 0 0 2px var(--purple); }
+.tl-dot.green { box-shadow: 0 0 0 2px var(--green); }
+.tl-card {
+  background: var(--surface); border-radius: var(--radius2);
+  padding: 14px 14px; box-shadow: var(--shadow);
+}
+.tl-mode { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.mode-badge {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 2px 8px; border-radius: 10px;
+}
+.mode-train { background: #fde8d0; color: #b05020; }
+.mode-bus { background: #d0f0e8; color: #1a7a5a; }
+.mode-flight { background: #d8d4f0; color: #4a3a90; }
+.mode-temple { background: #fde8d0; color: var(--amber2); }
+.mode-hotel { background: #e0f4f0; color: var(--teal2); }
+.mode-walk { background: #fae8f0; color: var(--rose); }
+.tl-title { font-weight: 600; color: var(--navy); font-size: 0.9rem; }
+.tl-sub { font-size: 0.78rem; color: var(--text3); margin-top: 3px; line-height: 1.5; }
+.tl-detail-row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.tl-chip {
+  font-size: 0.7rem; color: var(--text2);
+  background: var(--surface2); border-radius: 6px;
+  padding: 3px 8px; display: flex; align-items: center; gap: 4px;
+}
+
+/* ══════════════════════════════════
+   TICKETS PAGE
+══════════════════════════════════ */
+.ticket {
+  background: var(--surface); border-radius: var(--radius);
+  margin: 0 16px 14px; overflow: hidden; box-shadow: var(--shadow);
+}
+.ticket-header { padding: 16px 18px 14px; }
+.ticket-type { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; font-weight: 700; margin-bottom: 6px; }
+.ticket-type.train { color: var(--amber2); }
+.ticket-type.flight { color: var(--purple); }
+.ticket-route { display: flex; align-items: center; gap: 10px; }
+.ticket-city { font-family: 'DM Serif Display', serif; font-size: 1.05rem; color: var(--navy); }
+.ticket-arrow { flex: 1; display: flex; align-items: center; gap: 4px; }
+.ticket-line { flex: 1; height: 1px; background: var(--border); }
+.ticket-divider {
+  border: none; border-top: 2px dashed var(--border);
+  margin: 0 18px; position: relative;
+}
+.ticket-divider::before, .ticket-divider::after {
+  content: ''; position: absolute; top: -9px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--bg);
+}
+.ticket-divider::before { left: -26px; }
+.ticket-divider::after { right: -26px; }
+.ticket-body { padding: 14px 18px 16px; }
+.ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ticket-field-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); margin-bottom: 3px; }
+.ticket-field-val { font-size: 0.88rem; font-weight: 600; color: var(--navy); }
+.pnr-box {
+  background: var(--navy); border-radius: 8px; padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between; margin-top: 12px;
+}
+.pnr-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(255,255,255,0.6); }
+.pnr-val { font-size: 1.1rem; font-weight: 700; color: var(--amber); letter-spacing: 0.08em; }
+.traveler-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.traveler-tag {
+  font-size: 0.7rem; background: var(--surface2); color: var(--text2);
+  border-radius: 6px; padding: 3px 8px; font-weight: 500;
+}
+
+/* ══════════════════════════════════
+   EXPENSES PAGE
+══════════════════════════════════ */
+.expense-summary {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal2) 100%);
+  padding: 20px; border-radius: 0; margin-bottom: 4px;
+}
+.exp-total-label { font-size: 0.72rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.07em; }
+.exp-total { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: #fff; margin: 4px 0; }
+.exp-per-row { display: flex; gap: 12px; margin-top: 12px; }
+.exp-per {
+  flex: 1; background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 12px;
+  text-align: center;
+}
+.exp-per-name { font-size: 0.68rem; color: rgba(255,255,255,0.7); margin-bottom: 3px; }
+.exp-per-amt { font-size: 0.92rem; font-weight: 700; color: #fff; }
+
+.exp-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-bottom: 4px; }
+.exp-cat-card {
+  background: var(--surface); border-radius: var(--radius2);
+  padding: 12px 14px; box-shadow: var(--shadow);
+}
+.exp-cat-icon { font-size: 1.3rem; margin-bottom: 4px; }
+.exp-cat-name { font-size: 0.68rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.exp-cat-amt { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--navy); margin-top: 2px; }
+
+.add-expense-btn {
+  width: calc(100% - 32px); margin: 0 16px 12px;
+  background: var(--navy); color: #fff; border: none; border-radius: var(--radius2);
+  padding: 14px; font-size: 0.9rem; font-weight: 600; font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+  transition: background 0.2s;
+}
+.add-expense-btn:active { background: var(--navy2); }
+
+.expense-list { padding: 0 16px; }
+.expense-item {
+  background: var(--surface); border-radius: var(--radius2);
+  padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow);
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.exp-item-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.exp-item-info { flex: 1; min-width: 0; }
+.exp-item-name { font-size: 0.88rem; font-weight: 600; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exp-item-cat { font-size: 0.7rem; color: var(--text3); margin-top: 1px; }
+.exp-item-amt { font-weight: 700; color: var(--navy); font-size: 0.9rem; white-space: nowrap; }
+.exp-item-del { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 1rem; padding: 4px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface); width: 100%; max-width: 480px;
+  border-radius: 24px 24px 0 0; padding: 24px 20px max(24px, env(safe-area-inset-bottom));
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--navy); margin-bottom: 20px; }
+.form-field { margin-bottom: 16px; }
+.form-label { font-size: 0.75rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
+  color: var(--navy); background: var(--surface);
+  outline: none; transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--navy); }
+.cat-select { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cat-option {
+  padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+  cursor: pointer; font-size: 0.8rem; font-weight: 500; text-align: center;
+  background: var(--surface); transition: all 0.15s; display: flex; align-items: center; gap: 6px; justify-content: center;
+}
+.cat-option.selected { border-color: var(--navy); background: var(--navy); color: #fff; }
+.submit-btn {
+  width: 100%; background: var(--amber); color: #fff; border: none;
+  border-radius: 12px; padding: 15px; font-size: 0.95rem; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px;
+}
+
+/* ══════════════════════════════════
+   ROUTE PAGE
+══════════════════════════════════ */
+.route-map { padding: 0 16px; }
+.route-svg-wrap { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 12px; }
+.route-legend { display: flex; flex-direction: column; gap: 8px; }
+.route-stop {
+  background: var(--surface); border-radius: var(--radius2);
+  padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start;
+  box-shadow: var(--shadow); margin-bottom: 8px;
+}
+.stop-num {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--navy);
+  color: #fff; font-size: 0.72rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.stop-name { font-weight: 600; color: var(--navy); font-size: 0.9rem; }
+.stop-info { font-size: 0.75rem; color: var(--text3); margin-top: 3px; line-height: 1.5; }
+.stop-transport { font-size: 0.7rem; color: var(--text2); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+/* ══════════════════════════════════
+   CHECKLIST PAGE
+══════════════════════════════════ */
+.checklist-tabs { display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto; scrollbar-width: none; }
+.checklist-tabs::-webkit-scrollbar { display: none; }
+.cl-tab {
+  padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+  font-size: 0.78rem; font-weight: 600; white-space: nowrap; cursor: pointer;
+  background: var(--surface); color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.cl-tab.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+.checklist-section { display: none; padding: 0 16px; }
+.checklist-section.active { display: block; }
+.cl-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.cl-item:last-child { border-bottom: none; }
+.cl-check {
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.2s; font-size: 0.75rem;
+}
+.cl-item.checked .cl-check { background: var(--green); border-color: var(--green); color: #fff; }
+.cl-text { font-size: 0.88rem; color: var(--text); transition: color 0.2s; flex: 1; }
+.cl-item.checked .cl-text { color: var(--text3); text-decoration: line-through; }
+
+.tip-card-item { background: var(--surface); border-radius: var(--radius2); padding: 14px 16px; margin-bottom: 8px; box-shadow: var(--shadow); }
+.tip-card-title { font-weight: 700; color: var(--navy); font-size: 0.88rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.tip-card-body { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+
+.contact-card { background: var(--surface); border-radius: var(--radius2); padding: 14px 16px; margin-bottom: 8px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 12px; }
+.contact-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.contact-name { font-weight: 600; color: var(--navy); font-size: 0.88rem; }
+.contact-num { font-size: 0.78rem; color: var(--text3); margin-top: 2px; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text3); }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+.empty-state p { font-size: 0.85rem; }
+
+/* ── PROGRESS BAR ── */
+.progress-row { margin-top: 8px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text3); margin-bottom: 4px; }
+.progress-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--amber) 0%, var(--rose) 100%); transition: width 0.6s ease; }
+
+/* ── WEATHER WIDGET ── */
+.weather-strip { background: linear-gradient(135deg, #2a6ea8 0%, #1a4a78 100%); border-radius: var(--radius); padding: 16px 18px; margin: 0 16px 12px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow); }
+.weather-icon { font-size: 2.5rem; }
+.weather-info { flex: 1; }
+.weather-temp { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: #fff; }
+.weather-desc { font-size: 0.75rem; color: rgba(255,255,255,0.75); }
+.weather-loc { font-size: 0.7rem; color: rgba(255,255,255,0.55); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ DASHBOARD PAGE ════════════════ -->
+<div class="page active" id="page-home">
+  <div class="hero-card">
+    <div style="position:relative;z-index:1;">
+      <div class="trip-name">South India<br><em>Road Trip</em></div>
+      <div class="trip-dates">📅 March 20 – 24, 2026 &nbsp;·&nbsp; 5 Days</div>
+      <div class="hero-meta">
+        <div class="hero-pill">👥 4 Travelers</div>
+        <div class="hero-pill">📍 4 Cities</div>
+        <div class="hero-pill">✈ 1 Flight</div>
+      </div>
+      <div class="travelers-row">
+        <div class="traveler-chip"><div class="traveler-avatar" style="background:#e8964a;">P</div>Prathyusha</div>
+        <div class="traveler-chip"><div class="traveler-avatar" style="background:#2a8a7e;">S</div>Satya</div>
+        <div class="traveler-chip"><div class="traveler-avatar" style="background:#6b5fa6;">Su</div>Surya</div>
+        <div class="traveler-chip"><div class="traveler-avatar" style="background:#d4506a;">V</div>Venky</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:16px;"></div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-label">Est. Budget</div>
+      <div class="stat-value">₹36K</div>
+      <div class="stat-sub">For all 4 travelers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Per Person</div>
+      <div class="stat-value">₹9K</div>
+      <div class="stat-sub">Approx. estimate</div>
+    </div>
+  </div>
+
+  <div style="padding:0 16px;margin-bottom:12px;">
+    <div class="stat-card">
+      <div class="stat-label">Trip Progress</div>
+      <div class="progress-row">
+        <div class="progress-label"><span>Day 1 – Mar 20</span><span>Day 5 – Mar 24</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%" id="tripProgress"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header"><div class="section-title">Next Steps</div></div>
+
+  <div class="card next-card">
+    <div class="next-label">🚆 Day 1 · Today's Journey</div>
+    <div class="next-step">
+      <div class="next-icon" style="background:#fde8d0;">🚂</div>
+      <div>
+        <div class="next-step-title">PURI TPTY EXPRESS · 17479</div>
+        <div class="next-step-sub">Vizianagaram 1:50 AM → Tirupati ~9 PM · 3AC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div class="next-label" style="color:var(--teal);">🛕 Day 2 · Temple Darshan</div>
+    <div class="next-step">
+      <div class="next-icon" style="background:#d0f0e8;">🙏</div>
+      <div>
+        <div class="next-step-title">Tirumala Sri Venkateswara</div>
+        <div class="next-step-sub">Darshan + Tirumala sightseeing · March 21</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div class="next-label" style="color:var(--purple);">🌊 Days 3–4 · Pondicherry</div>
+    <div class="next-step">
+      <div class="next-icon" style="background:#e0e0f8;">🏖️</div>
+      <div>
+        <div class="next-step-title">Pondicherry Stay</div>
+        <div class="next-step-sub">Beach, French Colony, Auroville · Mar 22–23</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header"><div class="section-title">Weather Preview</div></div>
+  <div class="weather-strip">
+    <div class="weather-icon">☀️</div>
+    <div class="weather-info">
+      <div class="weather-temp">34°C</div>
+      <div class="weather-desc">Hot & Sunny — typical March South India</div>
+      <div class="weather-loc">Pack light cottons · SPF 50 · Hydration essential</div>
+    </div>
+  </div>
+
+  <div style="height:8px;"></div>
+</div>
+
+<!-- ════════════════ TIMELINE PAGE ════════════════ -->
+<div class="page" id="page-timeline">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div><div class="topbar-title">Itinerary</div><div class="topbar-sub">Day-by-day plan</div></div>
+      <div class="topbar-badge">5 Days</div>
+    </div>
+  </div>
+
+  <div style="height:12px;"></div>
+  <div class="timeline">
+
+    <!-- DAY 1 -->
+    <div class="timeline-day">
+      <div class="day-badge">📅 Day 1 · Thursday, March 20</div>
+      <div class="tl-items">
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--amber);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-train">🚂 Train</span></div>
+            <div class="tl-title">Vizianagaram → Tirupati</div>
+            <div class="tl-sub">PURI TPTY EXPRESS · 17479 · 3AC<br>Prathyusha, Satya & Surya depart</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🕐 Dep 1:50 AM</div>
+              <div class="tl-chip">🏁 Arr ~9 PM</div>
+              <div class="tl-chip">💰 ₹3,595 total</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot teal" style="background:var(--teal);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-train">🚂 Boards En Route</span></div>
+            <div class="tl-title">Venky joins at Rajahmundry</div>
+            <div class="tl-sub">Same train 17479 · Boards at Rajahmundry station</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🕖 7:00 AM</div>
+              <div class="tl-chip">💰 ₹362</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot rose" style="background:var(--rose);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-temple">🛕 Temple</span></div>
+            <div class="tl-title">Arrive Tirupati → Head to Tirumala</div>
+            <div class="tl-sub">Check in · Travel up to Tirumala hill · Overnight stay for darshan</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🕗 8–10 PM arr.</div>
+              <div class="tl-chip">🏨 Stay overnight</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="timeline-day">
+      <div class="day-badge">📅 Day 2 · Friday, March 21</div>
+      <div class="tl-items">
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--amber);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-temple">🙏 Darshan</span></div>
+            <div class="tl-title">Tirumala Sri Venkateswara Darshan</div>
+            <div class="tl-sub">Early morning puja & darshan · Annadanam (free prasadam meal)</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🌅 Early morning</div>
+              <div class="tl-chip">🎫 SSD ₹300/person</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot teal" style="background:var(--teal);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-bus">🚌 Depart</span></div>
+            <div class="tl-title">Return from Tirumala by 10 AM</div>
+            <div class="tl-sub">TTD buses back down to Tirupati · Pack up and start journey</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🕙 By 10:00 AM</div>
+              <div class="tl-chip">🚌 ₹36–56/person</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot purple" style="background:var(--purple);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-bus">🚌 Bus / Cab</span></div>
+            <div class="tl-title">Tirupati → Pondicherry</div>
+            <div class="tl-sub">~4.5–5 hrs journey · APSRTC bus or shared cab via ECR scenic route</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">⏱ ~5 hrs</div>
+              <div class="tl-chip">💰 ₹350–₹1,000/person</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="timeline-day">
+      <div class="day-badge">📅 Day 3 · Saturday, March 22</div>
+      <div class="tl-items">
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--amber);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-hotel">🏨 Pondicherry</span></div>
+            <div class="tl-title">Arrive & Check In · Pondicherry</div>
+            <div class="tl-sub">Budget hotel / hostel · White Town or French Quarter</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🏡 2 nights stay</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot teal" style="background:var(--teal);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-walk">🌿 Explore</span></div>
+            <div class="tl-title">Auroville + Promenade Beach</div>
+            <div class="tl-sub">Morning: Auroville Matrimandir (8 AM) · Afternoon: Promenade Beach sunset · Evening: French Colony walk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot rose" style="background:var(--rose);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-walk">☕ Food</span></div>
+            <div class="tl-title">Cafés & Local Food</div>
+            <div class="tl-sub">Auroville Bakery · Le Café promenade · French-Tamil fusion dinner</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="timeline-day">
+      <div class="day-badge">📅 Day 4 · Sunday, March 23</div>
+      <div class="tl-items">
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--amber);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-walk">🏖️ Full Day</span></div>
+            <div class="tl-title">Full Day Pondicherry</div>
+            <div class="tl-sub">Paradise Beach (boat ₹60/person) · Rock Beach · Sri Aurobindo Ashram · Shopping on MG Road</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot teal" style="background:var(--teal);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-bus">🚌 Depart</span></div>
+            <div class="tl-title">Evening: Pondicherry → Chennai</div>
+            <div class="tl-sub">~3–3.5 hrs · TNSTC bus or outstation cab · Reach Chennai for night</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🕗 Evening</div>
+              <div class="tl-chip">⏱ ~3.5 hrs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 5 -->
+    <div class="timeline-day">
+      <div class="day-badge">📅 Day 5 · Monday, March 24</div>
+      <div class="tl-items">
+        <div class="tl-item">
+          <div class="tl-dot teal" style="background:var(--teal);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-train">🚂 Train</span></div>
+            <div class="tl-title">Satya & Surya · Chennai → Visakhapatnam</div>
+            <div class="tl-sub">MAS VSKP SF EXPRESS · 22870 · MGR Chennai Central</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🕙 Dep 10:00 AM</div>
+              <div class="tl-chip">🕙 Arr 10:20 PM VSP</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot purple" style="background:var(--purple);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-flight">✈️ Flight</span></div>
+            <div class="tl-title">Prathyusha & Venky · Chennai → Hyderabad</div>
+            <div class="tl-sub">MAA T1 → Hyderabad Rajiv Gandhi Intl · PNR: S7UNJM</div>
+            <div class="tl-detail-row">
+              <div class="tl-chip">🕓 Dep 4:30 PM</div>
+              <div class="tl-chip">🕔 Arr 5:45 PM</div>
+              <div class="tl-chip">📋 S7UNJM</div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot rose" style="background:var(--rose);"></div>
+          <div class="tl-card">
+            <div class="tl-mode"><span class="mode-badge mode-walk">🚖 Cab</span></div>
+            <div class="tl-title">Prathyusha & Venky · Airport → Madhapur</div>
+            <div class="tl-sub">Book Ola/Uber from HYD airport to home in Madhapur · ~45 mins</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════ TICKETS PAGE ════════════════ -->
+<div class="page" id="page-tickets">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div><div class="topbar-title">Tickets</div><div class="topbar-sub">Bookings & PNR</div></div>
+      <div class="topbar-badge">3 Bookings</div>
+    </div>
+  </div>
+
+  <div style="height:16px;"></div>
+
+  <!-- TICKET 1: Main Train -->
+  <div class="ticket">
+    <div class="ticket-header">
+      <div class="ticket-type train">🚂 TRAIN · 17479</div>
+      <div class="ticket-route">
+        <div>
+          <div class="ticket-city">VZM</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Vizianagaram</div>
+        </div>
+        <div class="ticket-arrow">
+          <div class="ticket-line"></div>
+          <span style="font-size:0.7rem;color:var(--text3);">→</span>
+          <div class="ticket-line"></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="ticket-city">TPTY</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Tirupati</div>
+        </div>
+      </div>
+    </div>
+    <hr class="ticket-divider">
+    <div class="ticket-body">
+      <div class="ticket-grid">
+        <div>
+          <div class="ticket-field-label">Train Name</div>
+          <div class="ticket-field-val">PURI TPTY EXP</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Coach</div>
+          <div class="ticket-field-val">3AC</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Departure</div>
+          <div class="ticket-field-val">1:50 AM · Mar 20</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Arrival (Est.)</div>
+          <div class="ticket-field-val">8–10 PM · Mar 20</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Fare</div>
+          <div class="ticket-field-val">₹3,595 total</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Train No.</div>
+          <div class="ticket-field-val">17479</div>
+        </div>
+      </div>
+      <div class="traveler-tags">
+        <div class="traveler-tag">👤 Prathyusha</div>
+        <div class="traveler-tag">👤 Satya</div>
+        <div class="traveler-tag">👤 Surya</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKET 2: Venky Train -->
+  <div class="ticket">
+    <div class="ticket-header">
+      <div class="ticket-type train">🚂 TRAIN · 17479 (Boards en route)</div>
+      <div class="ticket-route">
+        <div>
+          <div class="ticket-city">RJY</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Rajahmundry</div>
+        </div>
+        <div class="ticket-arrow">
+          <div class="ticket-line"></div>
+          <span style="font-size:0.7rem;color:var(--text3);">→</span>
+          <div class="ticket-line"></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="ticket-city">TPTY</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Tirupati</div>
+        </div>
+      </div>
+    </div>
+    <hr class="ticket-divider">
+    <div class="ticket-body">
+      <div class="ticket-grid">
+        <div>
+          <div class="ticket-field-label">Boards At</div>
+          <div class="ticket-field-val">Rajahmundry</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Boarding Time</div>
+          <div class="ticket-field-val">7:00 AM · Mar 20</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Fare</div>
+          <div class="ticket-field-val">₹362</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Train No.</div>
+          <div class="ticket-field-val">17479</div>
+        </div>
+      </div>
+      <div class="traveler-tags">
+        <div class="traveler-tag">👤 Venky</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKET 3: Return Train -->
+  <div class="ticket">
+    <div class="ticket-header">
+      <div class="ticket-type train">🚂 TRAIN · 22870</div>
+      <div class="ticket-route">
+        <div>
+          <div class="ticket-city">MAS</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Chennai Central</div>
+        </div>
+        <div class="ticket-arrow">
+          <div class="ticket-line"></div>
+          <span style="font-size:0.7rem;color:var(--text3);">→</span>
+          <div class="ticket-line"></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="ticket-city">VSKP</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Visakhapatnam</div>
+        </div>
+      </div>
+    </div>
+    <hr class="ticket-divider">
+    <div class="ticket-body">
+      <div class="ticket-grid">
+        <div>
+          <div class="ticket-field-label">Train Name</div>
+          <div class="ticket-field-val">MAS VSKP SF EXP</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Date</div>
+          <div class="ticket-field-val">March 24, 2026</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Departure</div>
+          <div class="ticket-field-val">10:00 AM · MAS</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Arrival</div>
+          <div class="ticket-field-val">10:20 PM · VSKP</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Journey</div>
+          <div class="ticket-field-val">~12.5 hrs</div>
+        </div>
+      </div>
+      <div class="traveler-tags">
+        <div class="traveler-tag">👤 Satya</div>
+        <div class="traveler-tag">👤 Surya</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKET 4: Flight -->
+  <div class="ticket">
+    <div class="ticket-header">
+      <div class="ticket-type flight">✈️ FLIGHT</div>
+      <div class="ticket-route">
+        <div>
+          <div class="ticket-city">MAA</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Chennai T1</div>
+        </div>
+        <div class="ticket-arrow">
+          <div class="ticket-line"></div>
+          <span style="font-size:0.7rem;color:var(--text3);">✈</span>
+          <div class="ticket-line"></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="ticket-city">HYD</div>
+          <div style="font-size:0.68rem;color:var(--text3);">Hyderabad RGIA</div>
+        </div>
+      </div>
+    </div>
+    <hr class="ticket-divider">
+    <div class="ticket-body">
+      <div class="ticket-grid">
+        <div>
+          <div class="ticket-field-label">Date</div>
+          <div class="ticket-field-val">March 24, 2026</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Terminal</div>
+          <div class="ticket-field-val">MAA T1</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Departure</div>
+          <div class="ticket-field-val">4:30 PM</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Arrival</div>
+          <div class="ticket-field-val">5:45 PM</div>
+        </div>
+        <div>
+          <div class="ticket-field-label">Post-landing</div>
+          <div class="ticket-field-val">Cab → Madhapur</div>
+        </div>
+      </div>
+      <div class="pnr-box">
+        <div><div class="pnr-label">PNR Number</div></div>
+        <div class="pnr-val">S7UNJM</div>
+      </div>
+      <div class="traveler-tags" style="margin-top:8px;">
+        <div class="traveler-tag">👤 Prathyusha</div>
+        <div class="traveler-tag">👤 Venky</div>
+      </div>
+    </div>
+  </div>
+  <div style="height:8px;"></div>
+</div>
+
+<!-- ════════════════ EXPENSES PAGE ════════════════ -->
+<div class="page" id="page-expenses">
+
+  <div class="expense-summary">
+    <div class="exp-total-label">Total Trip Expenses</div>
+    <div class="exp-total" id="totalAmt">₹0</div>
+    <div class="exp-per-row" id="perPersonRow">
+      <div class="exp-per"><div class="exp-per-name">Prathyusha</div><div class="exp-per-amt" id="pp-0">₹0</div></div>
+      <div class="exp-per"><div class="exp-per-name">Satya</div><div class="exp-per-amt" id="pp-1">₹0</div></div>
+      <div class="exp-per"><div class="exp-per-name">Surya</div><div class="exp-per-amt" id="pp-2">₹0</div></div>
+      <div class="exp-per"><div class="exp-per-name">Venky</div><div class="exp-per-amt" id="pp-3">₹0</div></div>
+    </div>
+  </div>
+
+  <div style="height:14px;"></div>
+
+  <div class="exp-cats" id="catSummary">
+    <div class="exp-cat-card"><div class="exp-cat-icon">🚂</div><div class="exp-cat-name">Transport</div><div class="exp-cat-amt" id="cat-transport">₹0</div></div>
+    <div class="exp-cat-card"><div class="exp-cat-icon">🏨</div><div class="exp-cat-name">Hotel</div><div class="exp-cat-amt" id="cat-hotel">₹0</div></div>
+    <div class="exp-cat-card"><div class="exp-cat-icon">🍽️</div><div class="exp-cat-name">Food</div><div class="exp-cat-amt" id="cat-food">₹0</div></div>
+    <div class="exp-cat-card"><div class="exp-cat-icon">🛍️</div><div class="exp-cat-name">Misc</div><div class="exp-cat-amt" id="cat-misc">₹0</div></div>
+  </div>
+
+  <div style="height:10px;"></div>
+  <button class="add-expense-btn" onclick="openModal()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Expense
+  </button>
+
+  <div class="section-header" style="padding-top:4px;"><div class="section-title">Expense Log</div></div>
+  <div class="expense-list" id="expenseList">
+    <div class="empty-state"><div class="icon">💸</div><p>No expenses yet.<br>Tap "Add Expense" to start tracking.</p></div>
+  </div>
+</div>
+
+<!-- ════════════════ ROUTE PAGE ════════════════ -->
+<div class="page" id="page-route">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div><div class="topbar-title">Route</div><div class="topbar-sub">Complete travel path</div></div>
+    </div>
+  </div>
+  <div style="height:12px;"></div>
+
+  <!-- SVG Route Map -->
+  <div class="route-map">
+    <div class="route-svg-wrap">
+      <svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <defs>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#e8964a" opacity="0.8"/>
+          </marker>
+        </defs>
+        <!-- India outline simplified -->
+        <path d="M30,20 Q60,15 100,20 Q150,18 180,30 Q220,35 250,60 Q270,80 275,110 Q280,140 265,170 Q250,200 230,220 Q210,240 185,255 Q165,265 145,260 Q125,270 105,265 Q80,255 65,240 Q40,215 28,190 Q15,160 18,130 Q20,90 28,60 Z" fill="#e8f4f0" stroke="#c0ddd8" stroke-width="1" opacity="0.7"/>
+
+        <!-- Route path -->
+        <polyline points="85,55  115,90  140,160  155,175  200,195  225,180  265,155" stroke="#e8964a" stroke-width="2.5" stroke-dasharray="6,3" fill="none" marker-end="url(#arr)" opacity="0.85"/>
+        <!-- Hyderabad branch -->
+        <line x1="225" y1="180" x2="200" y2="130" stroke="#6b5fa6" stroke-width="2" stroke-dasharray="5,3" opacity="0.7"/>
+
+        <!-- Cities -->
+        <!-- Vizianagaram -->
+        <circle cx="85" cy="55" r="7" fill="#1a2744" stroke="white" stroke-width="2"/>
+        <text x="95" y="50" font-size="9" fill="#1a2744" font-family="DM Sans,sans-serif" font-weight="600">Vizianagaram</text>
+
+        <!-- Rajahmundry -->
+        <circle cx="115" cy="90" r="5" fill="#e8964a" stroke="white" stroke-width="2"/>
+        <text x="122" y="87" font-size="8.5" fill="#1a2744" font-family="DM Sans,sans-serif">Rajahmundry</text>
+        <text x="122" y="97" font-size="7.5" fill="#8a93a8" font-family="DM Sans,sans-serif">(Venky boards)</text>
+
+        <!-- Tirupati -->
+        <circle cx="140" cy="160" r="7" fill="#d4506a" stroke="white" stroke-width="2"/>
+        <text x="150" y="156" font-size="9" fill="#1a2744" font-family="DM Sans,sans-serif" font-weight="600">Tirupati</text>
+
+        <!-- Tirumala -->
+        <circle cx="155" cy="175" r="5" fill="#e8964a" stroke="white" stroke-width="2"/>
+        <text x="162" y="178" font-size="8.5" fill="#1a2744" font-family="DM Sans,sans-serif">Tirumala 🛕</text>
+
+        <!-- Pondicherry -->
+        <circle cx="200" cy="195" r="7" fill="#2a8a7e" stroke="white" stroke-width="2"/>
+        <text x="150" y="207" font-size="9" fill="#1a2744" font-family="DM Sans,sans-serif" font-weight="600">Pondicherry</text>
+
+        <!-- Chennai -->
+        <circle cx="225" cy="180" r="7" fill="#6b5fa6" stroke="white" stroke-width="2"/>
+        <text x="232" y="176" font-size="9" fill="#1a2744" font-family="DM Sans,sans-serif" font-weight="600">Chennai</text>
+
+        <!-- Visakhapatnam -->
+        <circle cx="265" cy="155" r="5" fill="#3a9e6e" stroke="white" stroke-width="2"/>
+        <text x="270" y="152" font-size="8.5" fill="#1a2744" font-family="DM Sans,sans-serif">Vizag</text>
+
+        <!-- Hyderabad -->
+        <circle cx="200" cy="130" r="5" fill="#d4506a" stroke="white" stroke-width="2"/>
+        <text x="207" y="127" font-size="8.5" fill="#1a2744" font-family="DM Sans,sans-serif">Hyderabad ✈</text>
+
+        <!-- Legend -->
+        <line x1="25" y1="245" x2="50" y2="245" stroke="#e8964a" stroke-width="2" stroke-dasharray="5,2"/>
+        <text x="55" y="249" font-size="8" fill="#5a6480" font-family="DM Sans,sans-serif">Train / Bus route</text>
+        <line x1="25" y1="260" x2="50" y2="260" stroke="#6b5fa6" stroke-width="2" stroke-dasharray="4,2"/>
+        <text x="55" y="264" font-size="8" fill="#5a6480" font-family="DM Sans,sans-serif">Flight route</text>
+      </svg>
+    </div>
+
+    <!-- Route stops list -->
+    <div class="section-header" style="padding-left:0;"><div class="section-title">Route Details</div></div>
+
+    <div class="route-stop">
+      <div class="stop-num">1</div>
+      <div>
+        <div class="stop-name">📍 Vizianagaram</div>
+        <div class="stop-info">Starting point · Prathyusha, Satya & Surya</div>
+        <div class="stop-transport">🚂 Train 17479 departs 1:50 AM · Mar 20</div>
+      </div>
+    </div>
+    <div class="route-stop">
+      <div class="stop-num" style="background:var(--amber);">2</div>
+      <div>
+        <div class="stop-name">📍 Rajahmundry</div>
+        <div class="stop-info">Venky boards here · Same train</div>
+        <div class="stop-transport">🚂 Boards at 7:00 AM · Mar 20</div>
+      </div>
+    </div>
+    <div class="route-stop">
+      <div class="stop-num" style="background:var(--rose);">3</div>
+      <div>
+        <div class="stop-name">📍 Tirupati / Tirumala</div>
+        <div class="stop-info">All 4 arrive together · Temple darshan</div>
+        <div class="stop-transport">🚂 Arrive 8–10 PM · Mar 20 · Stay overnight</div>
+      </div>
+    </div>
+    <div class="route-stop">
+      <div class="stop-num" style="background:var(--teal);">4</div>
+      <div>
+        <div class="stop-name">📍 Pondicherry</div>
+        <div class="stop-info">2 nights stay · Beach, Auroville, cafés</div>
+        <div class="stop-transport">🚌 Bus/cab from Tirupati · Mar 21 afternoon</div>
+      </div>
+    </div>
+    <div class="route-stop">
+      <div class="stop-num" style="background:var(--purple);">5</div>
+      <div>
+        <div class="stop-name">📍 Chennai</div>
+        <div class="stop-info">Transit city · Departure hub</div>
+        <div class="stop-transport">🚌 From Pondicherry · Mar 23 evening</div>
+      </div>
+    </div>
+    <div class="route-stop">
+      <div class="stop-num" style="background:var(--green);">6A</div>
+      <div>
+        <div class="stop-name">📍 Visakhapatnam</div>
+        <div class="stop-info">Satya & Surya → Train 22870</div>
+        <div class="stop-transport">🚂 Dep 10 AM · Arr 10:20 PM · Mar 24</div>
+      </div>
+    </div>
+    <div class="route-stop">
+      <div class="stop-num" style="background:var(--rose);">6B</div>
+      <div>
+        <div class="stop-name">📍 Hyderabad</div>
+        <div class="stop-info">Prathyusha & Venky → Flight · PNR S7UNJM</div>
+        <div class="stop-transport">✈️ Dep 4:30 PM · Arr 5:45 PM · Cab to Madhapur</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ CHECKLIST PAGE ════════════════ -->
+<div class="page" id="page-checklist">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div><div class="topbar-title">Tools</div><div class="topbar-sub">Tips, lists & contacts</div></div>
+    </div>
+  </div>
+
+  <div style="height:12px;"></div>
+
+  <div class="checklist-tabs">
+    <button class="cl-tab active" onclick="showCL('packing', this)">🎒 Packing</button>
+    <button class="cl-tab" onclick="showCL('temple', this)">🛕 Temple</button>
+    <button class="cl-tab" onclick="showCL('tips', this)">💡 Tips</button>
+    <button class="cl-tab" onclick="showCL('contacts', this)">📞 Contacts</button>
+  </div>
+
+  <!-- PACKING LIST -->
+  <div class="checklist-section active" id="cl-packing">
+    <div style="padding:0 16px;">
+      <div class="card" style="margin:0 0 12px;">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+          Documents
+          <span style="font-size:0.75rem;color:var(--text3);" id="doc-progress">0 / 5</span>
+        </div>
+        <div id="pack-docs">
+          <div class="cl-item" onclick="toggleCheck(this,'doc-progress',5)"><div class="cl-check"></div><span class="cl-text">Aadhar / Voter ID (original)</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'doc-progress',5)"><div class="cl-check"></div><span class="cl-text">Train e-tickets (screenshots)</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'doc-progress',5)"><div class="cl-check"></div><span class="cl-text">Flight PNR: S7UNJM (Prathyusha & Venky)</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'doc-progress',5)"><div class="cl-check"></div><span class="cl-text">Hotel booking confirmations</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'doc-progress',5)"><div class="cl-check"></div><span class="cl-text">Tirumala darshan booking</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin:0 0 12px;">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;justify-content:space-between;"><span>Clothing</span><span style="font-size:0.75rem;color:var(--text3);" id="cloth-progress">0 / 6</span></div>
+        <div id="pack-cloth">
+          <div class="cl-item" onclick="toggleCheck(this,'cloth-progress',6)"><div class="cl-check"></div><span class="cl-text">3–4 cotton t-shirts / kurtas</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'cloth-progress',6)"><div class="cl-check"></div><span class="cl-text">Full trousers (temple entry mandatory)</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'cloth-progress',6)"><div class="cl-check"></div><span class="cl-text">Saree / salwar for women (temple)</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'cloth-progress',6)"><div class="cl-check"></div><span class="cl-text">Comfortable walking shoes</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'cloth-progress',6)"><div class="cl-check"></div><span class="cl-text">Flip-flops / sandals (temple/beach)</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'cloth-progress',6)"><div class="cl-check"></div><span class="cl-text">Cap / sunhat (March is hot!)</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin:0 0 12px;">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;justify-content:space-between;"><span>Health & Tech</span><span style="font-size:0.75rem;color:var(--text3);" id="health-progress">0 / 6</span></div>
+        <div id="pack-health">
+          <div class="cl-item" onclick="toggleCheck(this,'health-progress',6)"><div class="cl-check"></div><span class="cl-text">Sunscreen SPF 50+</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'health-progress',6)"><div class="cl-check"></div><span class="cl-text">Paracetamol, antacid, ORS sachets</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'health-progress',6)"><div class="cl-check"></div><span class="cl-text">Reusable water bottle</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'health-progress',6)"><div class="cl-check"></div><span class="cl-text">Power bank (10,000+ mAh)</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'health-progress',6)"><div class="cl-check"></div><span class="cl-text">Phone charger + adapter</span></div>
+          <div class="cl-item" onclick="toggleCheck(this,'health-progress',6)"><div class="cl-check"></div><span class="cl-text">Earphones + padlock for hostel</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLE TIPS -->
+  <div class="checklist-section" id="cl-temple">
+    <div style="padding:0 16px;">
+      <div class="tip-card-item"><div class="tip-card-title">👔 Dress Code (Strictly Enforced)</div><div class="tip-card-body">Men: Full trousers + shirt. NO shorts or bermudas allowed inside. Women: Saree or churidar/salwar kameez. No sleeveless, no western wear.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">📱 No Phones Inside Sanctum</div><div class="tip-card-body">Mobile phones & cameras are NOT allowed inside the main sanctum sanctorum. Deposit at the cloak room (₹5–₹20) before entering.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">🎫 SSD Ticket (Recommended)</div><div class="tip-card-body">Book Special Entry Darshan (SSD) tickets at tirupatibalaji.ap.gov.in — ₹300/person. Wait: 2–4 hrs. Free darshan wait can be 8–18 hrs. Book 2–4 weeks in advance!</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">🚌 Tirumala Transport</div><div class="tip-card-body">Only TTD buses go up Tirumala hill. Depart from Alipiri bus stand. Non-AC: ₹36, AC: ₹56. Run 24 hours. Start early (4–5 AM) to beat crowds.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">🍛 Free Prasadam Meal</div><div class="tip-card-body">TTD Annadanam provides FREE meals to all pilgrims — rice, sambar, rasam, curd on banana leaves. One of India's largest free feeding halls. Don't miss it!</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">🍬 Tirupati Laddu</div><div class="tip-card-body">Collect laddu prasadam coupons at TTD counters — ₹50/piece. Limited per person per visit. Buy as many as permitted — they're famous!</div></div>
+    </div>
+  </div>
+
+  <!-- TRAVEL TIPS -->
+  <div class="checklist-section" id="cl-tips">
+    <div style="padding:0 16px;">
+      <div class="tip-card-item"><div class="tip-card-title">🚂 Book Trains Early on IRCTC</div><div class="tip-card-body">Always book return trains via IRCTC app. Train 22870 (MAS VSKP) for Satya & Surya fills up fast. Check Tatkal quota if regular quota is full.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">✈️ Web Check-in for Flight</div><div class="tip-card-body">Prathyusha & Venky: Do web check-in the night before (March 23 night). Arrive at MAA T1 by 2:30 PM for 4:30 PM flight. Security takes 30–45 mins.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">🛵 Scooter Rental in Pondicherry</div><div class="tip-card-body">Best way to explore Pondi is on rented scooters. ₹300–₹500/day from shops near White Town hotels. Need a driving license. Cycle: ₹100–₹150.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">🔒 Safety & Scam Alert</div><div class="tip-card-body">Beware of touts near Tirupati offering "instant darshan" — these are scams. Book ONLY through official TTD website. Use OLA/Uber instead of negotiating with autos.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">☀️ Beat the Heat (March ~34°C)</div><div class="tip-card-body">South India in March is hot and humid. Carry reusable water bottle, ORS sachets, sunscreen. Plan outdoor activities before 11 AM and after 4 PM.</div></div>
+      <div class="tip-card-item"><div class="tip-card-title">📲 Useful Apps to Install</div><div class="tip-card-body">IRCTC Rail Connect · Redbus · Ola/Uber · Google Maps (save offline) · Zomato · TTD Official App · UPI (PhonePe / GPay)</div></div>
+    </div>
+  </div>
+
+  <!-- CONTACTS -->
+  <div class="checklist-section" id="cl-contacts">
+    <div style="padding:0 16px;">
+      <div class="contact-card"><div class="contact-icon" style="background:#fde8d0;">🚂</div><div><div class="contact-name">IRCTC Helpline</div><div class="contact-num">📞 139 (24×7 train info)</div></div></div>
+      <div class="contact-card"><div class="contact-icon" style="background:#d0f0e8;">🛕</div><div><div class="contact-name">TTD Tirupati</div><div class="contact-num">📞 0877-2277777 · tirupatibalaji.ap.gov.in</div></div></div>
+      <div class="contact-card"><div class="contact-icon" style="background:#e0e0f8;">✈️</div><div><div class="contact-name">Chennai Airport (MAA)</div><div class="contact-num">📞 044-22560551 · Terminal 1</div></div></div>
+      <div class="contact-card"><div class="contact-icon" style="background:#fae8f0;">🚖</div><div><div class="contact-name">Ola Cabs</div><div class="contact-num">📱 App or 1800-212-1234</div></div></div>
+      <div class="contact-card"><div class="contact-icon" style="background:#fde8d0;">🏥</div><div><div class="contact-name">Emergency / Ambulance</div><div class="contact-num">📞 108 (all states)</div></div></div>
+      <div class="contact-card"><div class="contact-icon" style="background:#e0f4f0;">👮</div><div><div class="contact-name">Police / Emergency</div><div class="contact-num">📞 100 (Police) · 112 (National)</div></div></div>
+      <div class="contact-card"><div class="contact-icon" style="background:#d0f0e8;">🏨</div><div><div class="contact-name">Hyderabad Airport (HYD)</div><div class="contact-num">📞 040-66546370 · RGIA</div></div></div>
+    </div>
+  </div>
+  <div style="height:8px;"></div>
+</div>
+
+<!-- ════════════════ BOTTOM NAV ════════════════ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('home', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    Home
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-item" onclick="showPage('timeline', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Plan
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-item" onclick="showPage('tickets', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+    Tickets
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-item" onclick="showPage('expenses', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    Expenses
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-item" onclick="showPage('route', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 100 16c1.5 0 4-1 6-4"/><path d="M8 18l-4 4M12 20v2"/></svg>
+    Route
+    <div class="nav-dot"></div>
+  </button>
+  <button class="nav-item" onclick="showPage('checklist', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
+    Tools
+    <div class="nav-dot"></div>
+  </button>
+</nav>
+
+<!-- ════════════════ ADD EXPENSE MODAL ════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Expense</div>
+    <div class="form-field">
+      <label class="form-label">Description</label>
+      <input class="form-input" type="text" id="expName" placeholder="e.g. Tirupati hotel, dinner...">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Amount (₹)</label>
+      <input class="form-input" type="number" id="expAmt" placeholder="0">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Category</label>
+      <div class="cat-select" id="catSelect">
+        <div class="cat-option selected" onclick="selectCat(this,'transport')">🚂 Transport</div>
+        <div class="cat-option" onclick="selectCat(this,'hotel')">🏨 Hotel</div>
+        <div class="cat-option" onclick="selectCat(this,'food')">🍽️ Food</div>
+        <div class="cat-option" onclick="selectCat(this,'misc')">🛍️ Misc</div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Split between</label>
+      <div id="splitSelect" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="cat-option selected" style="flex:none;padding:8px 12px;" onclick="togglePerson(this,'Prathyusha')">P</div>
+        <div class="cat-option selected" style="flex:none;padding:8px 12px;" onclick="togglePerson(this,'Satya')">Sa</div>
+        <div class="cat-option selected" style="flex:none;padding:8px 12px;" onclick="togglePerson(this,'Surya')">Su</div>
+        <div class="cat-option selected" style="flex:none;padding:8px 12px;" onclick="togglePerson(this,'Venky')">V</div>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="addExpense()">Add Expense →</button>
+  </div>
+</div>
+
+<script>
+// ── NAVIGATION ──
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── CHECKLIST TABS ──
+function showCL(id, btn) {
+  document.querySelectorAll('.checklist-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.cl-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('cl-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── CHECKLIST TOGGLE ──
+function toggleCheck(el, progressId, total) {
+  el.classList.toggle('checked');
+  if (progressId) {
+    const parent = el.parentElement;
+    const checked = parent.querySelectorAll('.cl-item.checked').length;
+    document.getElementById(progressId).textContent = checked + ' / ' + total;
+  }
+}
+
+// ── EXPENSE DATA ──
+let expenses = [];
+let selectedCat = 'transport';
+let selectedPersons = new Set(['Prathyusha','Satya','Surya','Venky']);
+
+const catIcons = { transport: '🚂', hotel: '🏨', food: '🍽️', misc: '🛍️' };
+const catColors = { transport: '#fde8d0', hotel: '#e0f4f0', food: '#fef0e0', misc: '#f0e8ff' };
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('expName').value = '';
+  document.getElementById('expAmt').value = '';
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function selectCat(el, cat) {
+  document.querySelectorAll('#catSelect .cat-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat = cat;
+}
+
+function togglePerson(el, name) {
+  el.classList.toggle('selected');
+  if (selectedPersons.has(name)) selectedPersons.delete(name);
+  else selectedPersons.add(name);
+}
+
+function addExpense() {
+  const name = document.getElementById('expName').value.trim();
+  const amt = parseFloat(document.getElementById('expAmt').value);
+  if (!name || !amt || amt <= 0) {
+    document.getElementById('expName').style.borderColor = '#d4506a';
+    setTimeout(() => document.getElementById('expName').style.borderColor = '#e8e3dc', 1500);
+    return;
+  }
+  expenses.push({ id: Date.now(), name, amt, cat: selectedCat, persons: [...selectedPersons] });
+  renderExpenses();
+  closeModal();
+}
+
+function deleteExpense(id) {
+  expenses = expenses.filter(e => e.id !== id);
+  renderExpenses();
+}
+
+function renderExpenses() {
+  const list = document.getElementById('expenseList');
+  const total = expenses.reduce((s,e) => s + e.amt, 0);
+  const catTotals = { transport:0, hotel:0, food:0, misc:0 };
+  const personTotals = { Prathyusha:0, Satya:0, Surya:0, Venky:0 };
+
+  expenses.forEach(e => {
+    catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amt;
+    const split = e.amt / (e.persons.length || 1);
+    e.persons.forEach(p => { personTotals[p] = (personTotals[p] || 0) + split; });
+  });
+
+  document.getElementById('totalAmt').textContent = '₹' + total.toLocaleString('en-IN');
+  ['transport','hotel','food','misc'].forEach(c => {
+    document.getElementById('cat-' + c).textContent = '₹' + (catTotals[c]||0).toLocaleString('en-IN');
+  });
+
+  const names = ['Prathyusha','Satya','Surya','Venky'];
+  names.forEach((n,i) => {
+    document.getElementById('pp-'+i).textContent = '₹' + Math.round(personTotals[n]||0).toLocaleString('en-IN');
+  });
+
+  if (expenses.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">💸</div><p>No expenses yet.<br>Tap "Add Expense" to start tracking.</p></div>';
+    return;
+  }
+
+  list.innerHTML = expenses.slice().reverse().map(e => `
+    <div class="expense-item">
+      <div class="exp-item-icon" style="background:${catColors[e.cat] || '#f0f0f0'}">${catIcons[e.cat] || '💰'}</div>
+      <div class="exp-item-info">
+        <div class="exp-item-name">${e.name}</div>
+        <div class="exp-item-cat">${e.cat} · ${e.persons.length} person${e.persons.length>1?'s':''} · ₹${Math.round(e.amt/e.persons.length).toLocaleString('en-IN')}/ea</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="exp-item-amt">₹${e.amt.toLocaleString('en-IN')}</div>
+        <button class="exp-item-del" onclick="deleteExpense(${e.id})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Preload some expenses
+const preloadedExpenses = [
+  { id: 1, name: 'Train VZM→TPTY (3 tickets)', amt: 3595, cat: 'transport', persons: ['Prathyusha','Satya','Surya'] },
+  { id: 2, name: 'Venky train RJY→TPTY', amt: 362, cat: 'transport', persons: ['Venky'] },
+  { id: 3, name: 'Tirumala SSD darshan (×4)', amt: 1200, cat: 'misc', persons: ['Prathyusha','Satya','Surya','Venky'] },
+];
+expenses = preloadedExpenses;
+selectedPersons = new Set(['Prathyusha','Satya','Surya','Venky']);
+renderExpenses();
+
+// Progress animation
+setTimeout(() => {
+  document.getElementById('tripProgress').style.width = '20%';
+}, 500);
+</script>
+</body>
+</html>
