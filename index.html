@@ -962,7 +962,13 @@ body {
     Add Expense
   </button>
 
-  <div class="section-header" style="padding-top:4px;"><div class="section-title">Expense Log</div></div>
+  <div class="section-header" style="padding-top:4px;display:flex;align-items:center;justify-content:space-between;padding-right:16px;">
+    <div class="section-title">Expense Log</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div id="saveIndicator" style="font-size:0.72rem;color:var(--green);font-weight:600;opacity:0;transition:opacity 0.4s;display:flex;align-items:center;gap:4px;">✓ Saved</div>
+      <button onclick="clearAllExpenses()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;font-size:0.72rem;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">Clear all</button>
+    </div>
+  </div>
   <div class="expense-list" id="expenseList">
     <div class="empty-state"><div class="icon">💸</div><p>No expenses yet.<br>Tap "Add Expense" to start tracking.</p></div>
   </div>
@@ -1264,88 +1270,57 @@ body {
   </div>
 </div>
 
-<script>
-// ── NAVIGATION ──
-function showPage(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  btn.classList.add('active');
-  window.scrollTo(0,0);
+<!-- ── FIREBASE SDK ── -->
+<script type="module">
+import { initializeApp }                        from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+import { getFirestore, collection, addDoc, deleteDoc,
+         doc, onSnapshot, query, orderBy,
+         getDocs, writeBatch }                  from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js';
+
+// ─────────────────────────────────────────────
+//  🔴 PASTE YOUR FIREBASE CONFIG HERE
+//  (replace every value below with yours)
+// ─────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyCIQAmH8d4T1-oqXYgiBhBx_Tyk3l50Yc8",
+  authDomain:        "travel-app-ba381.firebaseapp.com",
+  projectId:         "travel-app-ba381",
+  storageBucket:     "travel-app-ba381.firebasestorage.app",
+  messagingSenderId: "332285956592",
+  appId:             "1:332285956592:web:6d0c18c013c15949128d35"
+};
+// ─────────────────────────────────────────────
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const expCol = collection(db, 'expenses');
+
+// ── UI HELPERS ──
+const catIcons  = { transport:'🚂', hotel:'🏨', food:'🍽️', misc:'🛍️' };
+const catColors = { transport:'#fde8d0', hotel:'#e0f4f0', food:'#fef0e0', misc:'#f0e8ff' };
+
+function setStatus(msg, color='var(--green)') {
+  const el = document.getElementById('saveIndicator');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color   = color;
+  el.style.opacity = '1';
+  setTimeout(() => el.style.opacity = '0', 2200);
 }
 
-// ── CHECKLIST TABS ──
-function showCL(id, btn) {
-  document.querySelectorAll('.checklist-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.cl-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('cl-' + id).classList.add('active');
-  btn.classList.add('active');
+function showLoading(on) {
+  const btn = document.getElementById('addExpBtn');
+  if (btn) btn.style.opacity = on ? '0.5' : '1';
+  const list = document.getElementById('expenseList');
+  if (on && list.innerHTML === '')
+    list.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Connecting to shared database…</p></div>';
 }
 
-// ── CHECKLIST TOGGLE ──
-function toggleCheck(el, progressId, total) {
-  el.classList.toggle('checked');
-  if (progressId) {
-    const parent = el.parentElement;
-    const checked = parent.querySelectorAll('.cl-item.checked').length;
-    document.getElementById(progressId).textContent = checked + ' / ' + total;
-  }
-}
-
-// ── EXPENSE DATA ──
-let expenses = [];
-let selectedCat = 'transport';
-let selectedPersons = new Set(['Prathyusha','Satya','Surya','Venky']);
-
-const catIcons = { transport: '🚂', hotel: '🏨', food: '🍽️', misc: '🛍️' };
-const catColors = { transport: '#fde8d0', hotel: '#e0f4f0', food: '#fef0e0', misc: '#f0e8ff' };
-
-function openModal() {
-  document.getElementById('modalOverlay').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  document.getElementById('expName').value = '';
-  document.getElementById('expAmt').value = '';
-}
-function closeModalOutside(e) {
-  if (e.target === document.getElementById('modalOverlay')) closeModal();
-}
-
-function selectCat(el, cat) {
-  document.querySelectorAll('#catSelect .cat-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedCat = cat;
-}
-
-function togglePerson(el, name) {
-  el.classList.toggle('selected');
-  if (selectedPersons.has(name)) selectedPersons.delete(name);
-  else selectedPersons.add(name);
-}
-
-function addExpense() {
-  const name = document.getElementById('expName').value.trim();
-  const amt = parseFloat(document.getElementById('expAmt').value);
-  if (!name || !amt || amt <= 0) {
-    document.getElementById('expName').style.borderColor = '#d4506a';
-    setTimeout(() => document.getElementById('expName').style.borderColor = '#e8e3dc', 1500);
-    return;
-  }
-  expenses.push({ id: Date.now(), name, amt, cat: selectedCat, persons: [...selectedPersons] });
-  renderExpenses();
-  closeModal();
-}
-
-function deleteExpense(id) {
-  expenses = expenses.filter(e => e.id !== id);
-  renderExpenses();
-}
-
-function renderExpenses() {
+// ── RENDER ──
+function renderExpenses(expenses) {
   const list = document.getElementById('expenseList');
   const total = expenses.reduce((s,e) => s + e.amt, 0);
-  const catTotals = { transport:0, hotel:0, food:0, misc:0 };
+  const catTotals    = { transport:0, hotel:0, food:0, misc:0 };
   const personTotals = { Prathyusha:0, Satya:0, Surya:0, Venky:0 };
 
   expenses.forEach(e => {
@@ -1358,9 +1333,7 @@ function renderExpenses() {
   ['transport','hotel','food','misc'].forEach(c => {
     document.getElementById('cat-' + c).textContent = '₹' + (catTotals[c]||0).toLocaleString('en-IN');
   });
-
-  const names = ['Prathyusha','Satya','Surya','Venky'];
-  names.forEach((n,i) => {
+  ['Prathyusha','Satya','Surya','Venky'].forEach((n,i) => {
     document.getElementById('pp-'+i).textContent = '₹' + Math.round(personTotals[n]||0).toLocaleString('en-IN');
   });
 
@@ -1371,32 +1344,149 @@ function renderExpenses() {
 
   list.innerHTML = expenses.slice().reverse().map(e => `
     <div class="expense-item">
-      <div class="exp-item-icon" style="background:${catColors[e.cat] || '#f0f0f0'}">${catIcons[e.cat] || '💰'}</div>
+      <div class="exp-item-icon" style="background:${catColors[e.cat]||'#f0f0f0'}">${catIcons[e.cat]||'💰'}</div>
       <div class="exp-item-info">
         <div class="exp-item-name">${e.name}</div>
-        <div class="exp-item-cat">${e.cat} · ${e.persons.length} person${e.persons.length>1?'s':''} · ₹${Math.round(e.amt/e.persons.length).toLocaleString('en-IN')}/ea</div>
+        <div class="exp-item-cat">${e.cat} · ${e.persons.length} person${e.persons.length>1?'s':''} · ₹${Math.round(e.amt/e.persons.length).toLocaleString('en-IN')}/ea
+          ${e.addedBy ? `<span style="color:var(--amber2);font-weight:600;"> · ${e.addedBy}</span>` : ''}
+        </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="exp-item-amt">₹${e.amt.toLocaleString('en-IN')}</div>
-        <button class="exp-item-del" onclick="deleteExpense(${e.id})">✕</button>
+        <button class="exp-item-del" data-docid="${e.docId}">✕</button>
       </div>
     </div>
   `).join('');
+
+  // Attach delete listeners
+  list.querySelectorAll('.exp-item-del').forEach(btn => {
+    btn.addEventListener('click', () => deleteExpense(btn.dataset.docid));
+  });
 }
 
-// Preload some expenses
-const preloadedExpenses = [
-  { id: 1, name: 'Train VZM→TPTY (3 tickets)', amt: 3595, cat: 'transport', persons: ['Prathyusha','Satya','Surya'] },
-  { id: 2, name: 'Venky train RJY→TPTY', amt: 362, cat: 'transport', persons: ['Venky'] },
-  { id: 3, name: 'Tirumala SSD darshan (×4)', amt: 1200, cat: 'misc', persons: ['Prathyusha','Satya','Surya','Venky'] },
-];
-expenses = preloadedExpenses;
-selectedPersons = new Set(['Prathyusha','Satya','Surya','Venky']);
-renderExpenses();
+// ── REAL-TIME LISTENER ──
+showLoading(true);
+const q = query(expCol, orderBy('createdAt', 'asc'));
+onSnapshot(q, snapshot => {
+  showLoading(false);
+  const expenses = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+  renderExpenses(expenses);
+}, err => {
+  console.error(err);
+  setStatus('⚠️ DB error — check config', 'var(--rose)');
+});
 
-// Progress animation
+// ── ADD EXPENSE ──
+let selectedCat     = 'transport';
+let selectedPersons = new Set(['Prathyusha','Satya','Surya','Venky']);
+let addedBy         = localStorage.getItem('tripUser') || '';
+
+// Ask user their name once (so we know who added each expense)
+if (!addedBy) {
+  const name = prompt('👋 What is your name?\n(Prathyusha / Satya / Surya / Venky)');
+  addedBy = name || 'Someone';
+  localStorage.setItem('tripUser', addedBy);
+}
+
+window.openModal = () => document.getElementById('modalOverlay').classList.add('open');
+window.closeModal = () => {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('expName').value = '';
+  document.getElementById('expAmt').value  = '';
+};
+window.closeModalOutside = e => {
+  if (e.target === document.getElementById('modalOverlay')) window.closeModal();
+};
+window.selectCat = (el, cat) => {
+  document.querySelectorAll('#catSelect .cat-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat = cat;
+};
+window.togglePerson = (el, name) => {
+  el.classList.toggle('selected');
+  selectedPersons.has(name) ? selectedPersons.delete(name) : selectedPersons.add(name);
+};
+
+window.addExpense = async () => {
+  const name = document.getElementById('expName').value.trim();
+  const amt  = parseFloat(document.getElementById('expAmt').value);
+  if (!name || !amt || amt <= 0) {
+    document.getElementById('expName').style.borderColor = '#d4506a';
+    setTimeout(() => document.getElementById('expName').style.borderColor = '#e8e3dc', 1500);
+    return;
+  }
+  if (selectedPersons.size === 0) {
+    alert('Select at least one person to split with.');
+    return;
+  }
+  const btn = document.querySelector('.submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await addDoc(expCol, {
+      name, amt: parseFloat(amt),
+      cat: selectedCat,
+      persons: [...selectedPersons],
+      addedBy,
+      createdAt: Date.now()
+    });
+    setStatus('✓ Saved & synced');
+    window.closeModal();
+  } catch(err) {
+    console.error(err);
+    setStatus('⚠️ Failed to save', 'var(--rose)');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Add Expense →';
+  }
+};
+
+async function deleteExpense(docId) {
+  if (!confirm('Remove this expense?')) return;
+  try {
+    await deleteDoc(doc(db, 'expenses', docId));
+    setStatus('🗑 Deleted');
+  } catch(err) {
+    setStatus('⚠️ Delete failed', 'var(--rose)');
+  }
+}
+
+window.clearAllExpenses = async () => {
+  if (!confirm('Clear ALL expenses for everyone? Cannot be undone.')) return;
+  const snap  = await getDocs(expCol);
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  setStatus('🗑 All cleared');
+};
+
+// ── NAVIGATION ──
+window.showPage = (id, btn) => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+};
+
+// ── CHECKLIST TABS ──
+window.showCL = (id, btn) => {
+  document.querySelectorAll('.checklist-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.cl-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('cl-' + id).classList.add('active');
+  btn.classList.add('active');
+};
+
+window.toggleCheck = (el, progressId, total) => {
+  el.classList.toggle('checked');
+  if (progressId) {
+    const checked = el.parentElement.querySelectorAll('.cl-item.checked').length;
+    document.getElementById(progressId).textContent = checked + ' / ' + total;
+  }
+};
+
+// Progress bar animation
 setTimeout(() => {
-  document.getElementById('tripProgress').style.width = '20%';
+  const p = document.getElementById('tripProgress');
+  if (p) p.style.width = '20%';
 }, 500);
 </script>
 </body>
