@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Trip Planner · Best Buddies India 2026</title>
+<title>Trip Planner · Best Buddies  2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -860,7 +860,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
     <input type="file" id="fileInput" multiple accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png,.gif,.webp" onchange="handleFileSelect(event)">
     <span class="upload-icon">📤</span>
     <div class="upload-title">Tap to upload documents</div>
-    <div class="upload-sub">Or drag & drop files here<br>Shared instantly with all 4 friends</div>
+    <div class="upload-sub">Shared instantly with all 4 friends<br><span style="color:var(--green);font-weight:600">Under 900 KB</span> saves instantly · <span style="color:var(--indigo);font-weight:600">Larger files</span> need Storage rules</div>
     <div class="upload-types">
       <span class="upload-type-tag">📸 Images</span>
       <span class="upload-type-tag">📄 PDF</span>
@@ -1496,56 +1496,181 @@ window.selectDocCat = (el, cat) => {
 };
 
 // ── CONFIRM & UPLOAD ──
+// ── FILE → BASE64 helper ──
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result);   // result = "data:mime;base64,…"
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── FAKE PROGRESS ANIMATION (for Firestore path) ──
+function animateBar(bar, lbl, targetPct, duration) {
+  return new Promise(resolve => {
+    let cur = 0;
+    const step = targetPct / (duration / 30);
+    const id = setInterval(() => {
+      cur = Math.min(cur + step, targetPct);
+      if (bar) bar.style.width = cur + '%';
+      if (lbl) lbl.textContent  = 'Processing… ' + Math.round(cur) + '%';
+      if (cur >= targetPct) { clearInterval(id); resolve(); }
+    }, 30);
+  });
+}
+
 window.confirmDocUpload = async () => {
-  if(!pendingFile){ toast('No file selected',false); return; }
+  if (!pendingFile) { toast('No file selected', false); return; }
   const name = document.getElementById('docName').value.trim() || pendingFile.name;
   const btn  = document.getElementById('docSubmitBtn');
-  btn.disabled=true; btn.textContent='Uploading…';
+  btn.disabled = true; btn.textContent = 'Uploading…';
   window.closeDocModal();
 
-  // Show progress overlay
   const prog = document.getElementById('uploadProgress');
   const bar  = document.getElementById('upBar');
   const lbl  = document.getElementById('upLabel');
   prog.classList.add('show');
+  if (bar) bar.style.width = '0%';
+
+  // ── STRATEGY DECISION ──
+  // Files ≤ 900 KB  → base64 directly in Firestore (no Storage config needed)
+  // Files  > 900 KB → Firebase Storage (needs Storage rules)
+  const FIRESTORE_LIMIT = 900 * 1024; // 900 KB
 
   try {
-    const path = `trip-docs/${Date.now()}_${pendingFile.name}`;
-    const storageRef = ref(storage, path);
-    const task = uploadBytesResumable(storageRef, pendingFile, {contentType: pendingFile.type});
+    if (pendingFile.size <= FIRESTORE_LIMIT) {
+      // ── PATH A: Firestore base64 (always works) ──
+      if (lbl) lbl.textContent = 'Reading file…';
+      await animateBar(bar, lbl, 40, 400);
 
-    await new Promise((resolve, reject) => {
-      task.on('state_changed',
-        snap => {
-          const pct = Math.round(snap.bytesTransferred/snap.totalBytes*100);
-          if(bar)  bar.style.width = pct+'%';
-          if(lbl)  lbl.textContent = 'Uploading… '+pct+'%';
-        },
-        err => reject(err),
-        () => resolve()
-      );
-    });
+      const base64 = await fileToBase64(pendingFile);
 
-    const url = await getDownloadURL(task.snapshot.ref);
-    await addDoc(docCol, {
-      name, url, category: selectedDocCat,
-      fileType: pendingFile.type,
-      size: pendingFile.size,
-      storagePath: path,
-      uploadedBy: addedBy,
-      uploadedAt: Date.now()
-    });
-    toast('✅ Document uploaded & shared!');
-  } catch(err){
-    console.error(err);
-    toast('⚠️ Upload failed — check Storage rules',false);
+      await animateBar(bar, lbl, 80, 300);
+      if (lbl) lbl.textContent = 'Saving to database…';
+
+      await addDoc(docCol, {
+        name,
+        url:          base64,        // base64 data URL — works as img src / href
+        category:     selectedDocCat,
+        fileType:     pendingFile.type,
+        size:         pendingFile.size,
+        storagePath:  null,          // no Storage path
+        storageType:  'firestore',
+        uploadedBy:   addedBy,
+        uploadedAt:   Date.now()
+      });
+
+      if (bar) bar.style.width = '100%';
+      if (lbl) lbl.textContent = 'Done! ✓';
+      toast('✅ Document saved & shared with everyone!');
+
+    } else {
+      // ── PATH B: Firebase Storage (for large files > 900 KB) ──
+      if (lbl) lbl.textContent = 'Uploading to Storage…';
+
+      const path       = `trip-docs/${Date.now()}_${pendingFile.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+      const storageRef = ref(storage, path);
+      const meta       = { contentType: pendingFile.type };
+      const task       = uploadBytesResumable(storageRef, pendingFile, meta);
+
+      await new Promise((resolve, reject) => {
+        task.on('state_changed',
+          snap => {
+            const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+            if (bar) bar.style.width = pct + '%';
+            if (lbl) lbl.textContent  = 'Uploading… ' + pct + '%';
+          },
+          err => reject(err),
+          () => resolve()
+        );
+      });
+
+      const url = await getDownloadURL(task.snapshot.ref);
+      await addDoc(docCol, {
+        name, url,
+        category:     selectedDocCat,
+        fileType:     pendingFile.type,
+        size:         pendingFile.size,
+        storagePath:  path,
+        storageType:  'firebase',
+        uploadedBy:   addedBy,
+        uploadedAt:   Date.now()
+      });
+
+      if (bar) bar.style.width = '100%';
+      if (lbl) lbl.textContent = 'Done! ✓';
+      toast('✅ Document uploaded & shared!');
+    }
+
+  } catch (err) {
+    console.error('Upload error:', err);
+
+    // ── SPECIFIC ERROR MESSAGES ──
+    let msg = '⚠️ Upload failed';
+    if (err.code === 'storage/unauthorized') {
+      msg = '🔒 Storage rules not set — see instructions below';
+      showStorageInstructions();
+    } else if (err.code === 'storage/unknown' || err.message?.includes('CORS')) {
+      msg = '🌐 CORS error — enable Storage in Firebase Console';
+    } else if (err.code === 'storage/object-not-found') {
+      msg = '⚠️ Storage path error — try again';
+    } else if (err.message?.includes('quota')) {
+      msg = '💾 Storage quota exceeded';
+    } else if (err.code) {
+      msg = '⚠️ Error: ' + err.code;
+    }
+    toast(msg, false);
+
   } finally {
-    prog.classList.remove('show');
-    if(bar) bar.style.width='0%';
+    setTimeout(() => {
+      prog.classList.remove('show');
+      if (bar) bar.style.width = '0%';
+    }, 600);
     pendingFile = null;
-    btn.disabled=false; btn.textContent='Upload Document ↑';
+    btn.disabled = false; btn.textContent = 'Upload Document ↑';
   }
 };
+
+// ── STORAGE INSTRUCTIONS BANNER ──
+function showStorageInstructions() {
+  // Only show once
+  if (document.getElementById('storageHelp')) return;
+  const div = document.createElement('div');
+  div.id = 'storageHelp';
+  div.style.cssText = `
+    margin:0 16px 14px;background:linear-gradient(135deg,#1a0a40,#2d1060);
+    border-radius:16px;padding:16px;color:#fff;font-size:.78rem;line-height:1.7;
+    border:1px solid rgba(124,92,191,.4);
+  `;
+  div.innerHTML = `
+    <div style="font-weight:700;font-size:.88rem;margin-bottom:8px;color:#c4a0ff">
+      🔒 Fix: Enable Firebase Storage Rules
+    </div>
+    <div style="opacity:.85">Files over 900 KB need Firebase Storage. Do this:</div>
+    <ol style="margin:8px 0 8px 16px;opacity:.85">
+      <li>Open <strong>console.firebase.google.com</strong></li>
+      <li>Go to <strong>Storage → Rules</strong></li>
+      <li>Paste the rules below → click <strong>Publish</strong></li>
+    </ol>
+    <pre style="background:rgba(0,0,0,.4);border-radius:8px;padding:10px;font-size:.7rem;overflow-x:auto;color:#4ade80">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /trip-docs/{file} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+    <div style="opacity:.6;font-size:.7rem;margin-top:6px">
+      💡 Files under 900 KB upload instantly without Storage rules.
+    </div>
+    <button onclick="document.getElementById('storageHelp').remove()" style="margin-top:10px;background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#fff;padding:6px 14px;font-size:.76rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">Got it ✕</button>
+  `;
+  const docList = document.getElementById('docList');
+  if (docList) docList.parentElement.insertBefore(div, docList);
+  // Scroll to it
+  setTimeout(() => div.scrollIntoView({behavior:'smooth', block:'center'}), 100);
+}
 
 // ── VIEW ──
 window.viewDoc = (id) => {
@@ -1613,11 +1738,18 @@ window.deleteDocItem = async (id) => {
   const d = allDocs.find(x=>x.id===id);
   if(!d) return;
   try {
-    if(d.storagePath){ try{ await deleteObject(ref(storage, d.storagePath)); }catch(e){ console.warn('Storage delete:',e); } }
+    // Only try Storage delete if it was stored in Firebase Storage
+    if(d.storagePath && d.storageType === 'firebase'){
+      try { await deleteObject(ref(storage, d.storagePath)); }
+      catch(e){ console.warn('Storage delete skipped:', e.code); }
+    }
     await deleteDoc(doc(db,'documents',id));
     toast('🗑 Document deleted');
     closeDocViewer();
-  } catch(err){ toast('⚠️ Delete failed',false); }
+  } catch(err){
+    console.error(err);
+    toast('⚠️ Delete failed',false);
+  }
 };
 
 // Progress bar
