@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Trip Planner · South India 2026</title>
+<title>Best Buddies Tour 2026 🌴</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -385,16 +385,52 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .doc-modal-cat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .doc-cat-opt{padding:10px 6px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;font-size:.72rem;font-weight:600;text-align:center;background:var(--surface);transition:all .15s;font-family:'Outfit',sans-serif;color:var(--text2)}
 .doc-cat-opt.selected{border-color:var(--purple);background:rgba(124,92,191,.1);color:var(--purple)}
-.doc-viewer{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px}
+.doc-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px}
 .doc-viewer.open{opacity:1;pointer-events:all}
-.doc-viewer-img{max-width:100%;max-height:72vh;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.6)}
-.doc-viewer-pdf{width:100%;height:72vh;border-radius:12px;border:none}
-.doc-viewer-bar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:420px;margin-top:16px;gap:10px}
-.doc-viewer-name{font-size:.86rem;font-weight:700;color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.doc-viewer-btns{display:flex;gap:7px;flex-shrink:0}
-.dvbtn{padding:8px 14px;border-radius:10px;border:none;cursor:pointer;font-size:.78rem;font-weight:700;font-family:'Outfit',sans-serif;transition:all .15s}
+/* Zoom container — overflow hidden so image doesn't escape */
+.doc-zoom-wrap{
+  position:relative;width:100%;max-width:480px;flex:1;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  touch-action:none;cursor:grab;border-radius:14px;
+}
+.doc-zoom-wrap:active{cursor:grabbing}
+.doc-viewer-img{
+  max-width:100%;max-height:72vh;border-radius:12px;object-fit:contain;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+  transform-origin:center center;
+  transition:transform .1s ease;
+  user-select:none;-webkit-user-select:none;pointer-events:none;
+}
+.doc-viewer-pdf{width:100%;height:75vh;border-radius:12px;border:none}
+/* Zoom controls pill */
+.zoom-controls{
+  display:flex;align-items:center;gap:0;
+  background:rgba(255,255,255,.12);border-radius:20px;
+  border:1px solid rgba(255,255,255,.18);overflow:hidden;
+  margin-top:10px;
+}
+.zoom-btn{
+  width:38px;height:36px;border:none;cursor:pointer;
+  background:transparent;color:#fff;font-size:1.1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;font-family:'Outfit',sans-serif;
+}
+.zoom-btn:active{background:rgba(255,255,255,.2)}
+.zoom-level{
+  font-size:.72rem;font-weight:700;color:rgba(255,255,255,.8);
+  padding:0 10px;min-width:44px;text-align:center;
+  border-left:1px solid rgba(255,255,255,.15);
+  border-right:1px solid rgba(255,255,255,.15);
+  font-family:'Outfit',sans-serif;
+}
+.doc-viewer-bar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:480px;margin-top:8px;gap:8px}
+.doc-viewer-name{font-size:.84rem;font-weight:700;color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-viewer-btns{display:flex;gap:6px;flex-shrink:0}
+.dvbtn{padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-size:.76rem;font-weight:700;font-family:'Outfit',sans-serif;transition:all .15s}
 .dvbtn:active{transform:scale(.95)}
 .dvbtn-dl{background:var(--indigo);color:#fff}.dvbtn-sh{background:var(--green);color:#fff}.dvbtn-cl{background:rgba(255,255,255,.15);color:#fff}
+/* Double-tap hint */
+.zoom-hint{font-size:.65rem;color:rgba(255,255,255,.35);text-align:center;margin-top:4px;letter-spacing:.04em}
 .doc-empty{text-align:center;padding:32px 20px;color:var(--text3)}
 .doc-empty .ico{font-size:2.5rem;margin-bottom:10px;display:block;animation:uploadBounce 2.5s ease-in-out infinite}
 
@@ -640,7 +676,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="globe-atmo"></div>
       </div>
     </div>
-    <div class="splash-title">South India<br><em>Trip 2026</em></div>
+    <div class="splash-title">Best Buddies<br><em>Tour 2026</em></div>
     <div class="splash-subtitle">✈ Vizag · Tirupati · Pondi · Chennai</div>
     <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
     <div class="splash-loading">Loading your trip<span>.</span><span>.</span><span>.</span></div>
@@ -651,8 +687,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="hi">
-      <div class="heyebrow">🌴 Friends Trip · 4 Travelers</div>
-      <div class="htitle">South India<br><em>Awaits</em></div>
+      <div class="heyebrow">🤝 Best Buddies Tour · 4 Travelers</div>
+      <div class="htitle">Best Buddies<br><em>Tour 2026</em></div>
       <div class="hdate"><span>📅</span> March 20 – 24, 2026</div>
       <div class="cds">
         <div class="cd"><div class="cdn" id="cd-d">--</div><div class="cdl">Days</div></div>
@@ -1053,7 +1089,20 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
 <!-- ══════════ DOC VIEWER ══════════ -->
 <div class="doc-viewer" id="docViewer">
-  <div id="docViewerContent" style="width:100%;max-width:440px;display:flex;align-items:center;justify-content:center;flex:1"></div>
+  <!-- Zoom wrap — pinch & drag happen here -->
+  <div class="doc-zoom-wrap" id="docZoomWrap">
+    <div id="docViewerContent" style="display:flex;align-items:center;justify-content:center;width:100%"></div>
+  </div>
+
+  <!-- Zoom controls pill (images only) -->
+  <div class="zoom-controls" id="zoomControls" style="display:none">
+    <button class="zoom-btn" onclick="zoomStep(-0.25)" title="Zoom out">−</button>
+    <div class="zoom-level" id="zoomLevel">100%</div>
+    <button class="zoom-btn" onclick="zoomStep(+0.25)" title="Zoom in">+</button>
+    <button class="zoom-btn" onclick="resetZoom()" title="Reset" style="font-size:.7rem;padding:0 8px;width:auto">Reset</button>
+  </div>
+  <div class="zoom-hint" id="zoomHint">Pinch to zoom · Double-tap to reset</div>
+
   <div class="doc-viewer-bar">
     <div class="doc-viewer-name" id="docViewerName"></div>
     <div class="doc-viewer-btns">
@@ -1725,28 +1774,150 @@ service firebase.storage {
   setTimeout(() => div.scrollIntoView({behavior:'smooth', block:'center'}), 100);
 }
 
+// ── ZOOM STATE ──
+let zoomScale  = 1;
+let zoomMinScale = 0.5;
+let zoomMaxScale = 5;
+let panX = 0, panY = 0;
+let isImage = false;
+
+function applyTransform() {
+  const img = document.querySelector('#docViewerContent .doc-viewer-img');
+  if (!img) return;
+  img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
+  const lbl = document.getElementById('zoomLevel');
+  if (lbl) lbl.textContent = Math.round(zoomScale * 100) + '%';
+}
+
+function resetZoom() {
+  zoomScale = 1; panX = 0; panY = 0;
+  applyTransform();
+}
+
+window.zoomStep = (delta) => {
+  zoomScale = Math.min(zoomMaxScale, Math.max(zoomMinScale, zoomScale + delta));
+  if (zoomScale <= 1) { panX = 0; panY = 0; }
+  applyTransform();
+};
+
+// ── PINCH & DRAG SETUP ──
+function initZoom(wrap) {
+  let lastDist   = 0;
+  let dragging   = false;
+  let lastTouchX = 0, lastTouchY = 0;
+  let lastTap    = 0;
+
+  // Touch start
+  wrap.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      // pinch start
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastDist = Math.hypot(dx, dy);
+      dragging = false;
+    } else if (e.touches.length === 1) {
+      // double-tap check
+      const now = Date.now();
+      if (now - lastTap < 300) {
+        // double tap — reset zoom
+        resetZoom();
+        e.preventDefault();
+      }
+      lastTap    = now;
+      dragging   = true;
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    }
+  }, { passive: false });
+
+  // Touch move
+  wrap.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 2) {
+      // pinch zoom
+      const dx   = e.touches[0].clientX - e.touches[1].clientX;
+      const dy   = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.hypot(dx, dy);
+      const ratio = dist / lastDist;
+      zoomScale = Math.min(zoomMaxScale, Math.max(zoomMinScale, zoomScale * ratio));
+      lastDist  = dist;
+      applyTransform();
+    } else if (e.touches.length === 1 && dragging && zoomScale > 1) {
+      // pan (only when zoomed in)
+      const dx = e.touches[0].clientX - lastTouchX;
+      const dy = e.touches[0].clientY - lastTouchY;
+      panX += dx; panY += dy;
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+      applyTransform();
+    }
+  }, { passive: false });
+
+  // Touch end
+  wrap.addEventListener('touchend', () => { dragging = false; });
+
+  // Mouse wheel zoom (desktop)
+  wrap.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.15 : 0.15;
+    zoomScale = Math.min(zoomMaxScale, Math.max(zoomMinScale, zoomScale + delta));
+    if (zoomScale <= 1) { panX = 0; panY = 0; }
+    applyTransform();
+  }, { passive: false });
+
+  // Mouse drag (desktop)
+  let mouseDown = false, mx = 0, my = 0;
+  wrap.addEventListener('mousedown', e => { mouseDown = true; mx = e.clientX; my = e.clientY; wrap.style.cursor = 'grabbing'; });
+  window.addEventListener('mousemove', e => {
+    if (!mouseDown || zoomScale <= 1) return;
+    panX += e.clientX - mx; panY += e.clientY - my;
+    mx = e.clientX; my = e.clientY;
+    applyTransform();
+  });
+  window.addEventListener('mouseup', () => { mouseDown = false; wrap.style.cursor = 'grab'; });
+}
+
+// Init zoom once
+const zoomWrap = document.getElementById('docZoomWrap');
+if (zoomWrap) initZoom(zoomWrap);
+
 // ── VIEW ──
 window.viewDoc = (id) => {
-  const d = allDocs.find(x=>x.id===id);
-  if(!d) return;
+  const d = allDocs.find(x => x.id === id);
+  if (!d) return;
   currentViewDoc = d;
+
   const viewer  = document.getElementById('docViewer');
   const content = document.getElementById('docViewerContent');
   const nameEl  = document.getElementById('docViewerName');
-  if(nameEl) nameEl.textContent = d.name;
+  const zoomCtrl = document.getElementById('zoomControls');
+  const zoomHint = document.getElementById('zoomHint');
 
-  if(isImage(d.fileType)){
-    content.innerHTML = `<img class="doc-viewer-img" src="${d.url}" alt="${d.name}">`;
-  } else if(d.fileType==='application/pdf'){
-    content.innerHTML = `<iframe class="doc-viewer-pdf" src="${d.url}#toolbar=0" title="${d.name}"></iframe>`;
+  if (nameEl) nameEl.textContent = d.name;
+  resetZoom();
+
+  const isImg = d.fileType && d.fileType.startsWith('image/');
+
+  if (isImg) {
+    content.innerHTML = `<img class="doc-viewer-img" src="${d.url}" alt="${d.name}" draggable="false">`;
+    if (zoomCtrl) zoomCtrl.style.display = 'flex';
+    if (zoomHint) zoomHint.style.display = 'block';
+  } else if (d.fileType === 'application/pdf') {
+    content.innerHTML = `<iframe class="doc-viewer-pdf" src="${d.url}#toolbar=1&zoom=page-fit" title="${d.name}"></iframe>`;
+    if (zoomCtrl) zoomCtrl.style.display = 'none';
+    if (zoomHint) zoomHint.style.display = 'none';
   } else {
-    content.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,.7)"><div style="font-size:4rem;margin-bottom:12px">${catEmoji[d.category]||'📄'}</div><div style="font-size:.9rem;font-weight:700">${d.name}</div><div style="font-size:.74rem;margin-top:6px;opacity:.6">${catLabel[d.category]||'File'} · ${fmtSize(d.size||0)}</div><div style="font-size:.74rem;margin-top:4px;opacity:.5">Tap Save to download</div></div>`;
+    content.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,.7)"><div style="font-size:4rem;margin-bottom:12px">${catEmoji[d.category]||'📄'}</div><div style="font-size:.9rem;font-weight:700">${d.name}</div><div style="font-size:.74rem;margin-top:6px;opacity:.6">${catLabel[d.category]||'File'} · ${fmtSize(d.size||0)}</div></div>`;
+    if (zoomCtrl) zoomCtrl.style.display = 'none';
+    if (zoomHint) zoomHint.style.display = 'none';
   }
+
   viewer.classList.add('open');
 };
 
 window.closeDocViewer = () => {
   document.getElementById('docViewer').classList.remove('open');
+  resetZoom();
   currentViewDoc = null;
 };
 
@@ -1772,7 +1943,7 @@ window.shareDoc = async (id) => {
   if(!d) return;
   if(navigator.share){
     try {
-      await navigator.share({ title: d.name, text: '📄 '+d.name+' from South India Trip 2026', url: d.url });
+      await navigator.share({ title: d.name, text: '📄 '+d.name+' from Best Buddies Tour 2026', url: d.url });
     } catch(e){ if(e.name!=='AbortError') copyToClipboard(d.url); }
   } else {
     copyToClipboard(d.url);
