@@ -863,7 +863,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
     <button onclick="clearAllExpenses()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;font-size:.68rem;color:var(--text3);cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600">Clear all</button>
   </div>
   <div class="expl" id="expenseList">
-    <div class="empty"><div class="ico">⏳</div><p>Connecting to shared database…</p></div>
+    <div class="empty"><div class="ico">💸</div><p>No expenses yet.<br>Tap "Add Expense" to start.</p></div>
   </div>
 </div>
 
@@ -1779,7 +1779,6 @@ let zoomScale  = 1;
 let zoomMinScale = 0.5;
 let zoomMaxScale = 5;
 let panX = 0, panY = 0;
-let isImage = false;
 
 function applyTransform() {
   const img = document.querySelector('#docViewerContent .doc-viewer-img');
